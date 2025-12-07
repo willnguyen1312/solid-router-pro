@@ -12,30 +12,20 @@ import { createSignal, createResource, Suspense, For, Show } from "solid-js";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const fetchUser = async (id: string) => {
+const fetchUser = async () => {
   await sleep(1000);
   return Math.random() * 1000 + 1;
 };
 
 function App() {
-  const [userId, setUserId] = createSignal<string>();
-  const [user, { refetch }] = createResource(userId, fetchUser);
+  const [user, { refetch }] = createResource(fetchUser);
 
   return (
     <div>
       <button onclick={refetch}>Refresh</button>
-      <input
-        type="number"
-        min="1"
-        placeholder="Enter Numeric Id"
-        onblur={(e) => setUserId(e.currentTarget.value)}
-      />
 
       <Show when={user.state === "refreshing"}>
         <p>Refreshing...</p>
-      </Show>
-      <Show when={user.state === "unresolved"}>
-        <p>Unresolved</p>
       </Show>
       <Show when={user.state === "pending"}>
         <p>Pending</p>
