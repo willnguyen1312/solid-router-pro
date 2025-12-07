@@ -15,7 +15,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 type ObjectInput = Record<string, number>;
 
 const myBatchGetAccounts = async (keys: readonly ObjectInput[]) => {
-  await sleep(500);
+  await sleep(keys.length * 1000);
   console.log("Batch fetching accounts for keys:", keys);
   return keys.map((key) => {
     return {
