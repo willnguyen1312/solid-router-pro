@@ -94,8 +94,8 @@ const AccountStats = ({ id }: { id: number }) => {
   const stats = createAsync(() => getAccountQuery(id));
   const submission = useSubmission(
     reloadAccountAction.with({ id }),
-    ([input]: [number]) => {
-      return input === id;
+    ([input]: [{ id: number }]) => {
+      return input.id === id;
     }
   );
   const reload = useAction(reloadAccountAction.with({ id }));
