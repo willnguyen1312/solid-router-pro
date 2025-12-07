@@ -8,15 +8,7 @@ import {
   useAction,
 } from "@solidjs/router";
 import DataLoader from "dataloader";
-import {
-  createSignal,
-  createResource,
-  Switch,
-  Match,
-  Suspense,
-  For,
-  Show,
-} from "solid-js";
+import { createSignal, createResource, Suspense, For, Show } from "solid-js";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
