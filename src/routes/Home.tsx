@@ -59,7 +59,7 @@ const accountLoader = new DataLoader(
   (keys: readonly ObjectInput[]) => myBatchGetAccounts(keys),
   {
     cacheKeyFn: (object: ObjectInput) => hash(object),
-  },
+  }
 );
 
 const getAccountQuery = query(async (id: number) => {
@@ -96,7 +96,7 @@ const AccountStats = ({ id }: { id: number }) => {
     reloadAccountAction.with({ id }),
     ([input]: [number]) => {
       return input === id;
-    },
+    }
   );
   const reload = useAction(reloadAccountAction.with({ id }));
 
@@ -131,4 +131,4 @@ const AccountStats = ({ id }: { id: number }) => {
   );
 };
 
-export default App;
+export default Home;
