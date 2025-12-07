@@ -54,7 +54,7 @@ function Home() {
   );
 }
 
-const reloadAccountAction = action(async (id: number) => {
+const reloadAccountAction = action(async ({ id }: { id: number }) => {
   console.log("Action: reloading account with id:", id);
   accountLoader.clear({ id });
 
@@ -64,12 +64,12 @@ const reloadAccountAction = action(async (id: number) => {
 const AccountStats = ({ id }: { id: number }) => {
   const stats = createAsync(() => getAccountQuery(id));
   const submission = useSubmission(
-    reloadAccountAction.with(id),
+    reloadAccountAction.with({ id }),
     ([input]: [number]) => {
       return input === id;
     }
   );
-  const reload = useAction(reloadAccountAction.with(id));
+  const reload = useAction(reloadAccountAction.with({ id }));
 
   return (
     <div>
