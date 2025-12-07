@@ -8,7 +8,7 @@ import {
   useAction,
 } from "@solidjs/router";
 import DataLoader from "dataloader";
-import { createSignal, createResource, Suspense, For, Show } from "solid-js";
+import { createResource, Suspense, For, Show } from "solid-js";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -59,7 +59,7 @@ const accountLoader = new DataLoader(
   (keys: readonly ObjectInput[]) => myBatchGetAccounts(keys),
   {
     cacheKeyFn: (object: ObjectInput) => hash(object),
-  }
+  },
 );
 
 const getAccountQuery = query(async (id: number) => {
@@ -73,7 +73,7 @@ const getAccountQuery = query(async (id: number) => {
 
 const ids = [1, 2, 3];
 
-function Home() {
+export function Home() {
   return (
     <div>
       <h1>Hello from Home</h1>
@@ -96,7 +96,7 @@ const AccountStats = ({ id }: { id: number }) => {
     reloadAccountAction.with({ id }),
     ([input]: [number]) => {
       return input === id;
-    }
+    },
   );
   const reload = useAction(reloadAccountAction.with({ id }));
 
