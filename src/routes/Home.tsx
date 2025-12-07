@@ -1,0 +1,95 @@
+import hash from "object-hash";
+import { Suspense, For, Show } from "solid-js";
+import {
+  query,
+  createAsync,
+  action,
+  useSubmission,
+  reload,
+} from "@solidjs/router";
+import DataLoader from "dataloader";
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+type ObjectInput = Record<string, number>;
+
+const myBatchGetAccounts = async (keys: readonly ObjectInput[]) => {
+  await sleep(1000);
+  console.log("Batch fetching accounts for keys:", keys);
+  return keys.map((key) => {
+    return {
+      id: key.id,
+      name: `Account ${key.id}`,
+      balance: Math.floor(Math.random() * 1000) + 1,
+    };
+  });
+};
+
+const accountLoader = new DataLoader(
+  (keys: readonly ObjectInput[]) => myBatchGetAccounts(keys),
+  {
+    cacheKeyFn: (object: ObjectInput) => hash(object),
+  }
+);
+
+const getAccountQuery = query(async (id: number) => {
+  console.log("Fetching account with id:", id);
+  const account = await accountLoader.load({ id });
+  console.log("Fetched account:", account);
+  return account;
+}, "accountStats");
+
+const ids = [1, 2, 3];
+
+function Home() {
+  return (
+    <div>
+      <h1>Hello from Home</h1>
+
+      <For each={ids}>{(id) => <AccountStats id={id} />}</For>
+    </div>
+  );
+}
+
+const reloadAccountAction = action(async (id: number) => {
+  console.log("Action: reloading account with id:", id);
+  accountLoader.clear({ id });
+
+  throw reload({ revalidate: [getAccountQuery.keyFor(id)] });
+});
+
+const AccountStats = ({ id }: { id: number }) => {
+  const stats = createAsync(() => getAccountQuery(id));
+  const submission = useSubmission(
+    reloadAccountAction.with(id),
+    ([input]: [number]) => {
+      return input === id;
+    }
+  );
+
+  return (
+    <div>
+      <Suspense fallback={<p>Loading account {id}...</p>}>
+        <form action={reloadAccountAction.with(id)} method="post">
+          <input type="hidden" name="id" value={id} />
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+            }}
+          >
+            <button>Revalidate</button>
+
+            <Show when={submission.pending}>
+              <span>Refreshing...</span>
+            </Show>
+          </div>
+          <p>Name: {stats()?.name}</p>
+          <p>Balance: ${stats()?.balance}</p>
+        </form>
+      </Suspense>
+    </div>
+  );
+};
+
+export default Home;
