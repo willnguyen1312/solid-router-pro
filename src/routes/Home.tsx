@@ -6,6 +6,7 @@ import {
   action,
   useSubmission,
   reload,
+  useAction,
 } from "@solidjs/router";
 import DataLoader from "dataloader";
 
@@ -14,7 +15,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 type ObjectInput = Record<string, number>;
 
 const myBatchGetAccounts = async (keys: readonly ObjectInput[]) => {
-  await sleep(1000);
+  await sleep(500);
   console.log("Batch fetching accounts for keys:", keys);
   return keys.map((key) => {
     return {
@@ -36,6 +37,8 @@ const getAccountQuery = query(async (id: number) => {
   console.log("Fetching account with id:", id);
   const account = await accountLoader.load({ id });
   console.log("Fetched account:", account);
+
+  await sleep(1000);
   return account;
 }, "accountStats");
 
@@ -66,27 +69,34 @@ const AccountStats = ({ id }: { id: number }) => {
       return input === id;
     }
   );
+  const reload = useAction(reloadAccountAction.with(id));
 
   return (
     <div>
       <Suspense fallback={<p>Loading account {id}...</p>}>
-        <form action={reloadAccountAction.with(id)} method="post">
-          <input type="hidden" name="id" value={id} />
-          <div
-            style={{
-              display: "flex",
-              gap: "12px",
+        <input type="hidden" name="id" value={id} />
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+          }}
+        >
+          <button
+            disabled={submission.pending}
+            onclick={async () => {
+              await reload();
+              console.log("Done revalidation triggered for account", id);
             }}
           >
-            <button>Revalidate</button>
+            Revalidate
+          </button>
 
-            <Show when={submission.pending}>
-              <span>Refreshing...</span>
-            </Show>
-          </div>
-          <p>Name: {stats()?.name}</p>
-          <p>Balance: ${stats()?.balance}</p>
-        </form>
+          <Show when={submission.pending}>
+            <span>Refreshing...</span>
+          </Show>
+        </div>
+        <p>Name: {stats()?.name}</p>
+        <p>Balance: ${stats()?.balance}</p>
       </Suspense>
     </div>
   );
